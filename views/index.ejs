@@ -1,0 +1,54 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 text-center">
+    <h1 class="display-4 mb-4">Website Accessibility Analyzer</h1>
+    <p class="lead">Check your website's accessibility compliance with WCAG standards</p>
+    
+    <div class="card p-5 shadow-sm bg-light mt-5">
+      <div class="card-body">
+        <h2 class="mb-4">Analyze Your Website</h2>
+        <form action="/analysis/run" method="POST">
+          <div class="input-group mb-3">
+            <input 
+              type="url" 
+              name="url" 
+              class="form-control form-control-lg" 
+              placeholder="Enter website URL (e.g., https://example.com)" 
+              required
+            >
+            <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="row mt-5">
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h3 class="h5">Comprehensive Analysis</h3>
+            <p>Our tool checks for over 100 accessibility issues based on WCAG guidelines.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h3 class="h5">Detailed Reports</h3>
+            <p>Get visualizations, tables, and guidance to fix accessibility issues.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h3 class="h5">Share Your Results</h3>
+            <p>Generate shareable links and download comprehensive reports.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

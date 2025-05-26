@@ -1,0 +1,354 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1>Accessibility Analysis Results</h1>
+    <div>
+      <% if (shared) { %>
+        <button 
+          class="btn btn-outline-primary me-2" 
+          type="button" 
+          data-bs-toggle="modal" 
+          data-bs-target="#shareModal"
+        >
+          <i class="bi bi-share"></i> Share
+        </button>
+      <% } %>
+      <a href="/analysis/<%= analysis._id %>/download" class="btn btn-outline-success">
+        <i class="bi bi-download"></i> Download Report
+      </a>
+    </div>
+  </div>
+  <p class="lead">
+    URL: <a href="<%= analysis.url %>" target="_blank"><%= analysis.url %></a><br>
+    Analysis date: <%= new Date(analysis.timestamp).toLocaleString() %>
+  </p>
+</div>
+
+<!-- Summary Card -->
+<div class="card mb-4">
+  <div class="card-header bg-primary text-white">
+    <h2 class="h4 mb-0">Summary</h2>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <!--For Adding chart -->
+        <canvas id="issuesChart" width="400" height="300"></canvas>
+      </div>
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-6 mb-3">
+            <div class="card bg-danger text-white">
+              <div class="card-body text-center">
+                <h3 class="display-4"><%= analysis.stats.violationCount %></h3>
+                <p class="mb-0">Violations</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 mb-3">
+            <div class="card bg-success text-white">
+              <div class="card-body text-center">
+                <h3 class="display-4"><%= analysis.stats.passCount %></h3>
+                <p class="mb-0">Passes</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card bg-warning">
+              <div class="card-body text-center">
+                <h3 class="display-4"><%= analysis.stats.incompleteCount %></h3>
+                <p class="mb-0">Incomplete Count/Needs Review</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card bg-info text-white">
+              <div class="card-body text-center">
+                <h3 class="display-4"><%= analysis.stats.criticalIssues + analysis.stats.seriousIssues %></h3>
+                <p class="mb-0">Critical/Serious</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Violations -->
+<div class="card mb-4">
+  <div class="card-header bg-danger text-white">
+    <h2 class="h4 mb-0">Violations (<%= analysis.results.violations.length %>)</h2>
+  </div>
+  <div class="card-body">
+    <% if (analysis.results.violations.length === 0) { %>
+      <p class="text-success">No violations found!</p>
+    <% } else { %>
+      <div class="accordion" id="violationsAccordion">
+        <% analysis.results.violations.forEach((violation, index) => { %>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="violation-heading-<%= index %>">
+              <button 
+                class="accordion-button collapsed" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#violation-collapse-<%= index %>"
+              >
+                <span class="badge <%= violation.impact === 'critical' ? 'bg-danger' : 
+                  violation.impact === 'serious' ? 'bg-warning text-dark' : 
+                  violation.impact === 'moderate' ? 'bg-info text-dark' : 'bg-secondary' %> me-2">
+                  <%= violation.impact %>
+                </span>
+                <%= violation.description %> (<%= violation.nodes.length %> instances)
+              </button>
+            </h2>
+            <div 
+              id="violation-collapse-<%= index %>" 
+              class="accordion-collapse collapse" 
+              aria-labelledby="violation-heading-<%= index %>" 
+              data-bs-parent="#violationsAccordion"
+            >
+              <div class="accordion-body">
+                <h3 class="h6">Help:</h3>
+                <p><%= violation.help %></p>
+                
+                <% if (violation.nodes.length > 0) { %>
+                  <h3 class="h6 mt-3">Affected Elements:</h3>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Element</th>
+                          <th>Issue</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% violation.nodes.forEach(node => { %>
+                          <tr>
+                            <td>
+                              <code><%= node.html %></code>
+                            </td>
+                            <td>
+                              <%= node.failureSummary.replace('Fix any of the following:', '').replace('Fix all of the following:', '') %>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Needs Review -->
+<div class="card mb-4">
+  <div class="card-header bg-warning">
+    <h2 class="h4 mb-0">Needs Review (<%= analysis.results.incomplete.length %>)</h2>
+  </div>
+  <div class="card-body">
+    <% if (analysis.results.incomplete.length === 0) { %>
+      <p>No items need review.</p>
+    <% } else { %>
+      <div class="accordion" id="incompleteAccordion">
+        <% analysis.results.incomplete.forEach((item, index) => { %>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="incomplete-heading-<%= index %>">
+              <button 
+                class="accordion-button collapsed" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#incomplete-collapse-<%= index %>"
+              >
+                <%= item.description %> (<%= item.nodes.length %> instances)
+              </button>
+            </h2>
+            <div 
+              id="incomplete-collapse-<%= index %>" 
+              class="accordion-collapse collapse" 
+              aria-labelledby="incomplete-heading-<%= index %>" 
+              data-bs-parent="#incompleteAccordion"
+            >
+              <div class="accordion-body">
+                <p><%= item.help %></p>
+                
+                <% if (item.nodes.length > 0) { %>
+                  <h3 class="h6 mt-3">Elements to Review:</h3>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Element</th>
+                          <th>Review Needed</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% item.nodes.forEach(node => { %>
+                          <tr>
+                            <td>
+                              <code><%= node.html %></code>
+                            </td>
+                            <td>
+                              <%= node.failureSummary ? node.failureSummary : 'Manual review required' %>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Passes -->
+<div class="card mb-4">
+  <div class="card-header bg-success text-white">
+    <h2 class="h4 mb-0">Passes (<%= analysis.results.passes.length %>)</h2>
+  </div>
+  <div class="card-body">
+    <% if (analysis.results.passes.length === 0) { %>
+      <p>No passes recorded.</p>
+    <% } else { %>
+      <p>The following checks passed:</p>
+      <div class="row">
+        <% analysis.results.passes.forEach(pass => { %>
+          <div class="col-md-6 mb-2">
+            <div class="card border-success h-100">
+              <div class="card-body py-2">
+                <h3 class="h6 mb-0"><%= pass.description %></h3>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>
+<!-- Recommendations -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">Recommendations</h2>
+    </div>
+    <div class="card-body">
+      <% if (analysis.results.violations.length === 0) { %>
+        <p class="text-success">Great job! Your website has no detected accessibility violations.</p>
+      <% } else { %>
+        <h3 class="h5">Top Priority Fixes:</h3>
+        <ul class="list-group mb-4">
+          <% 
+            const criticalViolations = analysis.results.violations
+              .filter(v => v.impact === 'critical' || v.impact === 'serious')
+              .slice(0, 5); 
+          %>
+          <% if (criticalViolations.length === 0) { %>
+            <li class="list-group-item">No critical or serious issues found.</li>
+          <% } else { %>
+            <% criticalViolations.forEach(violation => { %>
+              <li class="list-group-item">
+                <strong><%= violation.description %>:</strong> 
+                <%= violation.help %>
+              </li>
+            <% }) %>
+          <% } %>
+        </ul>
+        
+        <h3 class="h5">General Improvements:</h3>
+        <ul>
+          <li>Ensure all images have meaningful alternative text</li>
+          <li>Check color contrast for all text elements</li>
+          <li>Make sure all interactive elements are keyboard accessible</li>
+          <li>Use proper heading structure (h1, h2, etc.)</li>
+          <li>Add labels to all form controls</li>
+        </ul>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- Share Modal -->
+  <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="shareModalLabel">Share Analysis Results</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Share this link with others to view the analysis results:</p>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" id="shareUrl" value="<%= shareUrl %>" readonly>
+              <button class="btn btn-outline-secondary" type="button" id="copyButton">Copy</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Chart for issues
+      document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('issuesChart').getContext('2d');
+        const issuesChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ['Critical', 'Serious', 'Moderate', 'Minor'],
+            datasets: [{
+              data: [
+               <%=analysis.stats.criticalIssues%>,
+               <%=analysis.stats.seriousIssues%>,
+               <%=analysis.stats.moderateIssues%>,
+               <%=analysis.stats.minorIssues%>
+          ],
+               backgroundColor: [
+                '#dc3545', // red - critical
+                '#fd7e14', // orange - serious
+                '#ffc107', // yellow - moderate
+                '#6c757d'  // gray - minor
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'bottom',
+              },
+              title: {
+                display: true,
+                text: 'Issues by Severity'
+              }
+            }
+          }
+        });
+      });
+    
+      // Copy share URL to clipboard
+  document.getElementById('copyButton')?.addEventListener('click', function() {
+  const shareUrl = document.getElementById('shareUrl');
+  navigator.clipboard.writeText(shareUrl.value).then(() => {
+    this.innerHTML = 'Copied!';
+    setTimeout(() => {
+      this.innerHTML = 'Copy';
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
+});
+
+    </script>
+    

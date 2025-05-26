@@ -1,0 +1,120 @@
+/* General Styles */
+body {
+    background-color: #e9ecef;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .navbar-brand {
+    font-weight: 600;
+  }
+  .f-link{
+    color: #0056b3; /* Darker blue for better contrast */
+    text-decoration: underline;
+  }
+  .f-link:hover{
+    color: #003974;
+  }
+  /* Card Styles */
+  .card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-header {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    font-weight: 600;
+  }
+  
+  /* Analysis Results Page */
+  .analysis-header {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .impact-badge {
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.25rem;
+  }
+  
+  /* Code Styles */
+  code {
+    word-break: break-word;
+    white-space: pre-wrap;
+    display: block;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  
+  /* Stats Cards */
+  .stats-card {
+    text-align: center;
+    border-radius: 0.5rem;
+    transition: transform 0.2s;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .stats-card .display-4 {
+    font-weight: 700;
+  }
+  
+  /* Loading animation */
+  .loading {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  
+  .loading:after {
+    content: " ";
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    border: 8px solid #007bff;
+    border-color: #007bff transparent #007bff transparent;
+    animation: loading 1.2s infinite;
+  }
+  
+  @keyframes loading {
+    0% {
+      transform: rotate(0deg);
+      animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    }
+    50% {
+      transform: rotate(900deg);
+      animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    100% {
+      transform: rotate(1800deg);
+    }
+  }
+  
+  /* Accordion Customization */
+  .accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+  }
+  
+  /* Share URL Input */
+  #shareUrl {
+    background-color: #f8f9fa;
+  }
+  
+  /* Responsive Tables */
+  .table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+  }

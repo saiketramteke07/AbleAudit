@@ -1,0 +1,26 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 text-center">
+    <div class="card shadow border-danger">
+      <div class="card-header bg-danger text-white">
+        <h1 class="h3 mb-0">Error</h1>
+      </div>
+      <div class="card-body">
+        <h2 class="h4 mb-4"><%= message %></h2>
+        
+        <% if (error && Object.keys(error).length > 0) { %>
+          <div class="alert alert-secondary">
+            <pre class="mb-0"><%= JSON.stringify(error, null, 2) %></pre>
+          </div>
+        <% } %>
+        
+        <div class="mt-4">
+          <a href="/" class="btn btn-primary me-2">Back to Home</a>
+          <a href="/analysis/new" class="btn btn-outline-primary">Try Another Analysis</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
