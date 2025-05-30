@@ -27,11 +27,12 @@ exports.runAnalysis = async (req, res) => {
     }
 
     // Launch headless browser
-    const browser = await puppeteer.launch({
-       headless: true,
-      executablePath: puppeteer.executablePath(),
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    }); //invisible browser
+  const browser = await puppeteer.launch({
+  headless: true,
+  executablePath: puppeteer.executablePath(), // 👈 Required for Render
+  args: ['--no-sandbox', '--disable-setuid-sandbox']
+});
+ //invisible browser
 
     const page = await browser.newPage();      //new tab in invisible browser
     
@@ -179,9 +180,11 @@ exports.downloadAnalysis = async (req, res) => {
       }
 
       const browser = await puppeteer.launch({
-        headless: 'new',
+        headless: true,
+        executablePath: puppeteer.executablePath(), // 👈 Add this
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
+
 
       const page = await browser.newPage();
 
