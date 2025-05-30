@@ -27,7 +27,12 @@ exports.runAnalysis = async (req, res) => {
     }
 
     // Launch headless browser
-    const browser = await puppeteer.launch({ headless: true }); //invisible browser
+    const browser = await puppeteer.launch({
+       headless: true,
+      executablePath: puppeteer.executablePath(),
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    }); //invisible browser
+
     const page = await browser.newPage();      //new tab in invisible browser
     
     // Set viewport
